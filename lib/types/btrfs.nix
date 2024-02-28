@@ -86,6 +86,11 @@ in
             default = null;
             description = "Location to mount the subvolume to.";
           };
+          blankSnapshot = lib.mkOption {
+            type = lib.types.bool;
+            default = false;
+            description = "Take an empty readonly snapshot of the subvolume after creation.";
+          };
           swap = swapType;
         };
       }));
@@ -129,6 +134,9 @@ in
             SUBVOL_ABS_PATH="$MNTPOINT/${subvol.name}"
             mkdir -p "$(dirname "$SUBVOL_ABS_PATH")"
             btrfs subvolume create "$SUBVOL_ABS_PATH" ${toString subvol.extraArgs}
+            ${lib.optionalString (subvol.blankSnapshot) ''
+              btrfs subvolume snapshot -r "$SUBVOL_ABS_PATH" "$SUBVOL_ABS_PATH"-blank
+            ''}
             ${swapCreate "$SUBVOL_ABS_PATH" subvol.swap}
           )
         '') (lib.attrValues config.subvolumes)}
