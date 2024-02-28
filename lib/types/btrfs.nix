@@ -86,6 +86,11 @@ in
             default = null;
             description = "Location to mount the subvolume to.";
           };
+          neededForBoot = lib.mkOption {
+            type = lib.types.bool;
+            default = false;
+            description = "If set, this file system will be mounted in the initial ramdisk";
+          };
           blankSnapshot = lib.mkOption {
             type = lib.types.bool;
             default = false;
@@ -187,6 +192,7 @@ in
                 device = config.device;
                 fsType = "btrfs";
                 options = subvol.mountOptions ++ [ "subvol=${subvol.name}" ];
+                neededForBoot = subvol.neededForBoot;
               };
             }
           )
